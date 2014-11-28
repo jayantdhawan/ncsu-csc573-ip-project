@@ -56,7 +56,7 @@ public class scheduler {
 
 		// Initialize the scheduler task
 		int delay = 0; 		// initial delay for 'delay' miliseconds
-		int period = 5000; // repeat every 'period' miliseconds
+		int period = 7000; // repeat every 'period' miliseconds
 
 		Timer timer = new Timer();
 
@@ -64,15 +64,22 @@ public class scheduler {
 		{
 			public void run() 
 		    {
-				Date dateobj1        = new Date();
-				SimpleDateFormat df1 = new SimpleDateFormat("MM/dd/yyyy");
-				String sys_date      = df1.format(dateobj1);
-
 				Connection myConn;
 				Statement myStmt;
 				ResultSet myRs;
+								
+				SimpleDateFormat df1;
+				String sys_date;
+				String sys_time;
+				Date dateobj1 = new Date();
 
-				System.out.println("System date "+ sys_date + " time " + sys_date);
+				df1        = new SimpleDateFormat("MM/dd/yyyy");
+				sys_date   = df1.format(dateobj1);
+				
+				df1        = new SimpleDateFormat("HH:mm");
+				sys_time   = df1.format(dateobj1);
+
+				System.out.println("\nSystem date "+ sys_date + " time " + sys_time);
 
 				try
 				{
@@ -81,12 +88,12 @@ public class scheduler {
 
 						// Query to get the top row in the sorted list
 						myRs = myStmt.executeQuery("SELECT JobID, DATE_FORMAT(DateOfJob, '%m/%d/%Y') as DateOfJob, TIME_FORMAT(StartTime, '%H:%i') as StartTime, TIME_FORMAT(StopTime, '%H:%i') as StopTime, DstAdd, Port, Protocol FROM (SELECT * FROM jobs2 ORDER BY DateOfJob, StartTime ASC) as j2 LIMIT 1");
-						while(myRs.next())
+						while (myRs.next())
 						{
 							String job_date = myRs.getString("DateOfJob");
 							int ID = myRs.getInt("JobID");
 
-							if(sys_date.equalsIgnoreCase(job_date) && flag==1)
+							if (sys_date.equalsIgnoreCase(job_date) && flag==1)
 							{
 								flag=0;
 								System.out.println("Match found. Preparing flow entries.");
