@@ -6,7 +6,8 @@ import java.util.TimerTask;
 
 public class scheduler {
 
-	public static int flag=1;
+	// 0 = No flow sent, 1 = Flow is being sent, 2 = Flow sent
+	public static int flow_status = 0;
 
 	public static void main(String[] args) {
 
@@ -16,6 +17,7 @@ public class scheduler {
 		final String url  = "jdbc:mysql://127.0.0.1/ip_project";
 		final String user = "root";
 		final String pass = "root";
+		final String tablename = "jobs";
 
 		try
 		{
@@ -32,7 +34,7 @@ public class scheduler {
 
 			// Get all the jobs from the database
 			myStmt = myConn.createStatement();
-			myRs   = myStmt.executeQuery("select * from jobs2");
+			myRs   = myStmt.executeQuery("select * from " + tablename);
 			
 			System.out.println("Jobs available:");
 
@@ -64,6 +66,11 @@ public class scheduler {
 		{
 			public void run() 
 		    {
+				if (flow_status == 1)
+				{
+					return;
+				}
+
 				Connection myConn;
 				Statement myStmt;
 				ResultSet myRs;
@@ -87,15 +94,19 @@ public class scheduler {
 						myStmt = myConn.createStatement();
 
 						// Query to get the top row in the sorted list
-						myRs = myStmt.executeQuery("SELECT JobID, DATE_FORMAT(DateOfJob, '%m/%d/%Y') as DateOfJob, TIME_FORMAT(StartTime, '%H:%i') as StartTime, TIME_FORMAT(StopTime, '%H:%i') as StopTime, DstAdd, Port, Protocol FROM (SELECT * FROM jobs2 ORDER BY DateOfJob, StartTime ASC) as j2 LIMIT 1");
+						myRs = myStmt.executeQuery("SELECT JobID, DATE_FORMAT(DateOfJob, '%m/%d/%Y') as DateOfJob, TIME_FORMAT(StartTime, '%H:%i') as StartTime, TIME_FORMAT(StopTime, '%H:%i') as StopTime, DstAdd, Port, Protocol FROM (SELECT * FROM " + tablename +" ORDER BY DateOfJob, StartTime ASC) as j2 LIMIT 1");
 						while (myRs.next())
 						{
+							String job_id = myRs.getString("JobID");
 							String job_date = myRs.getString("DateOfJob");
+							String job_start_time = myRs.getString("StartTime");
+							String job_stop_time = myRs.getString("StopTime");
+
 							int ID = myRs.getInt("JobID");
 
-							if (sys_date.equalsIgnoreCase(job_date) && flag==1)
+							if (sys_date.equalsIgnoreCase(job_date) && sys_time.equalsIgnoreCase(job_start_time) && (flow_status == 0))
 							{
-								flag=0;
+								flow_status = 1;
 								System.out.println("Match found. Preparing flow entries.");
 
 								System.out.println("Job " +myRs.getString("JobID")+": "
@@ -103,10 +114,17 @@ public class scheduler {
 								+ myRs.getString("StopTime") + " " + myRs.getString("DstAdd") + " "
 								+ myRs.getString("Port") + " " + myRs.getString("Protocol"));
 
-								//Statement myStmt1 = myConn.createStatement();
-								//myStmt1.executeUpdate("delete from IP where JobID="+ID+"");								
+								flow_status = 2;
 							}
-							else 
+							else if (sys_date.equalsIgnoreCase(job_date) && sys_time.equalsIgnoreCase(job_stop_time) && (flow_status == 2))
+							{
+								System.out.println("Deleting flow entry.");
+								//myRs = myStmt.executeQuery("DELETE FROM " + tablename + " WHERE JobID = " + job_id);
+								//myRs.next();?
+								flow_status = 0;
+								
+							}
+							else
 							{
 								System.out.println("Match not found");
 							}

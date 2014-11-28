@@ -9,7 +9,7 @@ Port varchar(20),
 Protocol varchar(20),
 PRIMARY KEY (JobID));
 
-create table jobs2 (
+create table jobs (
 JobID int NOT NULL AUTO_INCREMENT,
 DateOfJob DATE,
 StartTime TIME,
@@ -19,11 +19,11 @@ Port varchar(20),
 Protocol varchar(20),
 PRIMARY KEY (JobID));
 
-INSERT INTO jobs2 (`DateOfJob`, `StartTime`, `StopTime`, `DstAdd`, `Port`, `Protocol`) VALUES
-('2014-11-28', '11:40', '12:40', '192.168.0.1', '10', 'tcp');
+INSERT INTO jobs (`DateOfJob`, `StartTime`, `StopTime`, `DstAdd`, `Port`, `Protocol`) VALUES
+('2014-11-28', '15:30', '15:29', '192.168.0.1', '10', 'tcp');
 
-INSERT INTO jobs2 (`DateOfJob`, `StartTime`, `StopTime`, `DstAdd`, `Port`, `Protocol`) VALUES
-('2014-11-28', '11:40', '12:40', '192.168.0.1', '10', 'tcp');
+INSERT INTO jobs (`DateOfJob`, `StartTime`, `StopTime`, `DstAdd`, `Port`, `Protocol`) VALUES
+('2014-11-28', '15:29', '10:45', '192.168.0.1', '10', 'tcp');
 
 
 
