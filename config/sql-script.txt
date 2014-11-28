@@ -1,0 +1,35 @@
+# Following modified for MySQL
+create table jobs (
+JobID int NOT NULL AUTO_INCREMENT,
+DateOfJob varchar(20),
+StartTime varchar(20),
+StopTime varchar(20),
+DstAdd varchar(20),
+Port varchar(20),
+Protocol varchar(20),
+PRIMARY KEY (JobID));
+
+create table jobs2 (
+JobID int NOT NULL AUTO_INCREMENT,
+DateOfJob DATE,
+StartTime TIME,
+StopTime TIME,
+DstAdd varchar(20),
+Port varchar(20),
+Protocol varchar(20),
+PRIMARY KEY (JobID));
+
+INSERT INTO jobs2 (`DateOfJob`, `StartTime`, `StopTime`, `DstAdd`, `Port`, `Protocol`) VALUES
+('2014-11-28', '11:40', '12:40', '192.168.0.1', '10', 'tcp');
+
+INSERT INTO jobs2 (`DateOfJob`, `StartTime`, `StopTime`, `DstAdd`, `Port`, `Protocol`) VALUES
+('2014-11-28', '10:40', '10:45', '192.168.0.1', '10', 'tcp');
+
+
+
+# Following not needed for MySQL due to AUTO_INCREMENT option
+	create sequence ip_seq
+	minvalue 1
+	start with 1
+	increment by 1
+	cache 10;

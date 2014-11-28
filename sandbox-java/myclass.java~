@@ -1,0 +1,11 @@
+public class myclass{
+	public static void main(String args[]){
+		System.out.println("Hi");
+		callme('a');
+	}
+
+	void callme(char x)
+	{
+		System.out.println("x = " + x);
+	}
+}

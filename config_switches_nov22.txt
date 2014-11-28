@@ -1,0 +1,57 @@
+ovs-ofctl dump-flows br0
+ovs-ofctl add-flow br0 arp,nw_dst=10.0.0.5,action=output:1
+ovs-ofctl add-flow br0 arp,nw_dst=10.0.0.3,action=output:2
+ovs-ofctl add-flow br0 icmp,nw_dst=10.0.0.5,action=output:1
+ovs-ofctl add-flow br0 icmp,nw_dst=10.0.0.3,action=output:2
+ovs-ofctl add-flow br0 ip,nw_dst=10.0.0.3,action=output:2
+ovs-ofctl add-flow br0 ip,nw_dst=10.0.0.5,action=output:1
+
+# For setting Q0 (default queue):
+ovs-vsctl set port eth1 qos=@newqos -- --id=@newqos create qos type=linux-htb queues=0=@q0 -- --id=@q0 create queue other-config:min-rate=2000000 other-config:max-rate=3000000
+
+# For setting Q1 (default queue):
+ovs-vsctl set port eth1 qos=@newqos -- --id=@newqos create qos type=linux-htb queues=1=@q1 -- --id=@q1 create queue other-config:min-rate=2000000 other-config:max-rate=3000000
+
+ovs-ofctl add-flow br0 ip,nw_dst=10.0.0.5,action=enqueue:1:1
+
+
+# Floodlight commands
+curl -d '{"switch": "00:00:ba:8d:82:09:99:4e", "name":"flow-mod-1", "cookie":"0", "priority":"32766", "ingress-port":"2","active":"true", "actions":"output=1"}' http://10.0.0.1:8080/wm/staticflowentrypusher/json
+
+curl http://10.0.0.1:8080/wm/core/switch/1/flow/json;
+
+# Normal flow entry
+curl -d '{"switch": "00:00:ba:8d:82:09:99:4e", "name":"flow-mod-2", "cookie":"0", "priority":"32766", "ingress-port":"1","active":"true", "actions":"output=2"}' http://10.0.0.1:8080/wm/staticflowentrypusher/json
+
+curl http://10.0.0.1:8080/wm/core/switch/1/flow/json;
+
+# For assigning queue
+curl -d '{"switch": "00:00:ba:8d:82:09:99:4e", "name":"flow-mod-3", "cookie":"0", "priority":"32767", "ether-type":"2048", "protocol":"0x6", "ingress-port":"2","active":"true", "actions":"enqueue=1:1"}' http://10.0.0.1:8080/wm/staticflowentrypusher/json
+
+curl http://10.0.0.1:8080/wm/core/switch/1/flow/json;
+
+
+floodlight.modules=\
+net.floodlightcontroller.jython.JythonDebugInterface,\
+net.floodlightcontroller.counter.CounterStore,\
+net.floodlightcontroller.storage.memory.MemoryStorageSource,\
+net.floodlightcontroller.core.internal.FloodlightProvider,\
+net.floodlightcontroller.threadpool.ThreadPool,\
+net.floodlightcontroller.devicemanager.internal.DeviceManagerImpl,\
+net.floodlightcontroller.devicemanager.internal.DefaultEntityClassifier,\
+net.floodlightcontroller.staticflowentry.StaticFlowEntryPusher,\
+net.floodlightcontroller.firewall.Firewall,\
+net.floodlightcontroller.forwarding.Forwarding,\
+net.floodlightcontroller.linkdiscovery.internal.LinkDiscoveryManager,\
+net.floodlightcontroller.topology.TopologyManager,\
+net.floodlightcontroller.flowcache.FlowReconcileManager,\
+net.floodlightcontroller.debugcounter.DebugCounter,\
+net.floodlightcontroller.debugevent.DebugEvent,\
+net.floodlightcontroller.perfmon.PktInProcessingTime,\
+net.floodlightcontroller.ui.web.StaticWebRoutable,\
+net.floodlightcontroller.loadbalancer.LoadBalancer,\
+org.sdnplatform.sync.internal.SyncManager,\
+net.floodlightcontroller.devicemanager.internal.DefaultEntityClassifier
+org.sdnplatform.sync.internal.SyncManager.authScheme=CHALLENGE_RESPONSE
+org.sdnplatform.sync.internal.SyncManager.keyStorePath=/etc/floodlight/auth_credentials.jceks
+org.sdnplatform.sync.internal.SyncManager.dbPath=/var/lib/floodlight/
