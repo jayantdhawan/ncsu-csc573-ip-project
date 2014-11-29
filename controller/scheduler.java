@@ -1,4 +1,3 @@
-
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.io.*;
@@ -15,7 +14,8 @@ public class scheduler {
 	// 0 = No flow sent, 1 = Flow is being sent, 2 = Flow sent
 	public static int flow_status = 0;
 	
-	static void sendFlowAndGetResponse(String flow) throws UnsupportedEncodingException, IOException {
+	static void sendFlowAndGetResponse(String flow)
+		throws UnsupportedEncodingException, IOException {
 
 		String controller_ip = "127.0.0.1:8080";
 
@@ -45,22 +45,9 @@ public class scheduler {
 		writer.close();
 		reader.close();
 	}
-
-	public static void main(String[] args) throws UnsupportedEncodingException, IOException {
-
-		Connection myConn;
-		Statement myStmt;
-		ResultSet myRs;
-		final String db_url  = "jdbc:mysql://127.0.0.1/ip_project";
-		final String db_user = "root";
-		final String db_pass = "root";
-		final String db_tablename = "jobs";
-
-/* Trying out JSON */
-
-		// Temp variables
-		String DstAdd = "10.0.0.7";
-		String DstPort = "20";
+	
+	static void prepareAndSendFlow(String DstAdd, String DstPort, String Protocol)
+		throws UnsupportedEncodingException, IOException {
 		
 		URL url = new URL("http://127.0.0.1:8080/wm/device/");
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -69,8 +56,6 @@ public class scheduler {
 		{
 			for (String line; (line = reader.readLine()) != null;) 
 			{
-				String device_ip;
-
 				System.out.println(line + "\n");
 
 				JSONArray json_a = new JSONArray(line);
@@ -81,7 +66,7 @@ public class scheduler {
 
 					// The ipv4 key has an array of values, so we treat it as a JSONArray
 					// and then extract the string at index 0
-					device_ip = new JSONArray(json.get("ipv4").toString()).getString(0);
+					String device_ip = new JSONArray(json.get("ipv4").toString()).getString(0);
 
 					if (device_ip.equals(DstAdd))
 					{
@@ -89,27 +74,51 @@ public class scheduler {
 
 						for (int j = 0; j < json_a_attachmentPoints.length(); j++)
 						{
+							// Each iteration of this loop is one switch which the packets will
+							// pass through to reach the device
+
+							// Get the DPID and ports of the switch
 							json = json_a_attachmentPoints.getJSONObject(j);
-							System.out.println("dpid " + json.get("switchDPID") + " port " + json.get("port"));
-							
+							//>System.out.println("dpid " + json.get("switchDPID") + " port " + json.get("port"));
+							String flow_outport  = json.get("port").toString();
+
 							String flow_name     = "flow-mod-1";
 							String flow_priority = "32766";
-							String flow_outport  = json.get("port").toString();
+							
 							String flow_q        = "1";
+							
+							// The 'action' for enqueing the packets to a specific queue
 							//String flow_actions  = "enqueue=" + flow_outport + ":" + flow_q;
 							String flow_actions  = "output=" + flow_outport;
 							
+							// Prepare the JSON string that we are going to send
 							JSONObject json_req = new JSONObject();
 							json_req.put("switch", json.get("switchDPID").toString());
 							json_req.put("name", flow_name);
 							json_req.put("ether-type", "2048");
 							json_req.put("dst-ip", DstAdd);
+							json_req.put("dst-port", DstPort);
+							
+							if (Protocol.equalsIgnoreCase("tcp"))
+							{
+								json_req.put("protocol", "6");
+							}
+							else if (Protocol.equalsIgnoreCase("udp"))
+							{
+								json_req.put("protocol", "17");
+							}
+							else 
+							{
+								System.out.println("ERROR: Invalid protocol");
+								break;
+							}
+							
 							// json_req.put("cookie", "" + 0); required?
 							json_req.put("priority", "" + flow_priority);
 							json_req.put("active", "true");
 							json_req.put("actions", flow_actions);
 							
-							System.out.println(json_req.toString());
+							System.out.println("Flow to be sent: " + json_req.toString());
 
 							sendFlowAndGetResponse(json_req.toString());
 							
@@ -118,6 +127,25 @@ public class scheduler {
 				}
 			}
 		}
+	}
+
+	public static void main(String[] args)
+		throws UnsupportedEncodingException, IOException {
+
+		Connection myConn;
+		Statement myStmt;
+		ResultSet myRs;
+		final String db_url  = "jdbc:mysql://127.0.0.1/ip_project";
+		final String db_user = "root";
+		final String db_pass = "root";
+		final String db_tablename = "jobs";
+
+		// Temp variables
+		String DstAdd = "10.0.0.7";
+		String DstPort = "5001";
+		String Protocol = "tcp";
+		
+		prepareAndSendFlow(DstAdd, DstPort, Protocol);
 
 /*
 		// Create the flow
@@ -140,9 +168,8 @@ public class scheduler {
 		//flow = "{\"switch\":\"" + switch_dpid + "\",\"name\":\"" + flow_name + "\",\"cookie\":\"0\",\"priority\":\"32768\",\"ingress-port\":\"2\",\"active\":\"true\",\"actions\":\"output=5\"}";
 
 		sendFlowAndGetResponse(json_req.toString());
-		
-		
-/* Trying out JSON */
+ */
+
 /*
 		try
 		{
