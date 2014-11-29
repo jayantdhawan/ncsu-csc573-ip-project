@@ -58,20 +58,38 @@ public class scheduler {
 
 /* Trying out JSON */
 		String myString;
-/*
-		URL url = new URL("http://127.0.0.1:8080/wm/core/controller/switches/json");
+
+		URL url = new URL("http://127.0.0.1:8080/wm/device/");
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"))) 
 		{
 			for (String line; (line = reader.readLine()) != null;) 
 			{
+				String device_ip;
+
 				System.out.println(line + "\n");
-				JSONObject json = new JSONObject(line);
-				System.out.println("dpid " + json.get("dpid"));
+
+				JSONArray json_a = new JSONArray(line);
+				
+				for (int i = 0; i < json_a.length(); i++)
+				{
+					System.out.println(json_a.length());
+					JSONObject json = json_a.getJSONObject(i);
+					device_ip = json.get("ipv4").toString();
+
+					JSONArray json_a_attachmentPoints = new JSONArray(json.get("attachmentPoint").toString());
+
+					for (int j = 0; j < json_a_attachmentPoints.length(); j++)
+					{
+						json = json_a_attachmentPoints.getJSONObject(j);
+						System.out.println("dpid " + json.get("switchDPID") + " port " + json.get("port"));
+					}
+				}
 			}
 		}
-*/
+
+/*
 		// Create the flow
 		String switch_dpid = "00:00:00:00:00:00:00:01";
 		String flow_name   = "flow-mod-1";
