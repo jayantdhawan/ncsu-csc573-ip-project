@@ -78,7 +78,10 @@ public class scheduler {
 				for (int i = 0; i < json_a.length(); i++)
 				{
 					JSONObject json = json_a.getJSONObject(i);
-					device_ip = json.get("ipv4").toString();
+
+					// The ipv4 key has an array of values, so we treat it as a JSONArray
+					// and then extract the string at index 0
+					device_ip = new JSONArray(json.get("ipv4").toString()).getString(0);
 
 					if (device_ip.equals(DstAdd))
 					{
@@ -93,18 +96,22 @@ public class scheduler {
 							String flow_priority = "32766";
 							String flow_outport  = json.get("port").toString();
 							String flow_q        = "1";
-							String flow_actions  = "enqueue=" + flow_outport + ":" + flow_q;
+							//String flow_actions  = "enqueue=" + flow_outport + ":" + flow_q;
+							String flow_actions  = "output=" + flow_outport;
 							
 							JSONObject json_req = new JSONObject();
 							json_req.put("switch", json.get("switchDPID").toString());
 							json_req.put("name", flow_name);
-							json_req.put("cookie", "" + 0);
+							json_req.put("ether-type", "2048");
+							json_req.put("dst-ip", DstAdd);
+							// json_req.put("cookie", "" + 0); required?
 							json_req.put("priority", "" + flow_priority);
-							json_req.put("ingress-port", "" + 2);
 							json_req.put("active", "true");
 							json_req.put("actions", flow_actions);
 							
 							System.out.println(json_req.toString());
+
+							sendFlowAndGetResponse(json_req.toString());
 							
 						}
 					}
