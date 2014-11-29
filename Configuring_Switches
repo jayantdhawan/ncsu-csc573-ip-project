@@ -1,0 +1,96 @@
+
+Configured Switches
+=====================
+
+----
+S1
+----
+
+sudo apt-get update
+sudo apt-get install ovs-openvswitch
+sudo apt-get install openvswitch-switch
+sudo apt-get install openvswitch-common
+sudo apt-get install openvswitch-controller
+ovs-vsctl add-br br0
+ovs-vsctl add-port br0 eth1
+ovs-vsctl add-port br0 eth3
+ovs-vsctl set-fail-mode br0 secure
+ovs-vsctl set-controller br0 tcp:10.0.0.1:6633
+ovs-vsctl show
+
+root@S1:~# ovs-vsctl show
+32c86ce2-4074-41dc-9162-187730eda8da
+    Bridge "br0"
+        Controller "tcp:10.0.0.1:6633"
+        fail_mode: secure
+        Port "eth1"
+            Interface "eth1"
+        Port "eth3"
+            Interface "eth3"
+        Port "br0"
+            Interface "br0"
+                type: internal
+    ovs_version: "2.0.2"
+
+----
+S2
+----
+sudo apt-get update
+sudo apt-get install openvswitch-switch
+sudo apt-get install openvswitch-common
+ovs-vsctl add-br br0
+ovs-vsctl add-port br0 eth1
+ovs-vsctl add-port br0 eth3
+ovs-vsctl set-fail-mode br0 secure
+ovs-vsctl set-controller br0 tcp:10.0.0.3:6633
+ovs-vsctl show
+
+root@S2:~# ovs-vsctl show 
+19ac3dca-964c-4ad5-bcf4-9bc0af1680b4
+    Bridge "br0"
+        Controller "tcp:10.0.0.3:6633"
+        fail_mode: secure
+        Port "br0"
+            Interface "br0"
+                type: internal
+        Port "eth1"
+            Interface "eth1"
+        Port "eth3"
+            Interface "eth3"
+    ovs_version: "2.0.2"
+
+
+----
+S3
+----
+
+sudo apt-get update
+sudo apt-get install openvswitch-switch
+sudo apt-get install openvswitch-common
+ovs-vsctl add-br br0
+ovs-vsctl add-port br0 eth3
+ovs-vsctl add-port br0 eth2
+ovs-vsctl set-fail-mode br0 secure
+ovs-vsctl set-controller br0 tcp:10.0.0.5:6633
+ovs-vsctl show
+
+root@S3:~# ovs-vsctl show
+d1f64ad7-9d75-4d5d-951f-770e541aa903
+    Bridge "br0"
+        Controller "tcp:10.0.0.5:6633"
+        fail_mode: secure
+        Port "br0"
+            Interface "br0"
+                type: internal
+        Port "eth2"
+            Interface "eth2"
+        Port "eth3"
+            Interface "eth3"
+    ovs_version: "2.0.2"
+
+
+
+
+
+
+

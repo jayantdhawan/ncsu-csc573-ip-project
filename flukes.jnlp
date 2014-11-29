@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+		spec="1.0+"
+		codebase="http://geni-images.renci.org/webstart"
+		href="flukes.jnlp">
+	<information>
+		<title>FLUKES</title>
+		<vendor>RENCI, The University of North Carolina at Chapel Hill</vendor>
+		<homepage href="http://www.renci.org"/>
+		<description>FLUKES - ORCA NDL graph editor</description>
+		<icon kind="splash" href="http://geni-images.renci.org/webstart/html/icon.png"/>
+		<icon href="http://geni-images.renci.org/webstart/html/icon.png"/>
+	</information>
+	<security>
+		<all-permissions/>
+	</security>
+	<resources>
+		<j2se version="1.6+" max-heap-size="1024m" />
+		    
+    <jar href="lib/flukes-0.4-SNAPSHOT.jar" main="true"/>
+    <jar href="lib/ndl-4.0-SNAPSHOT.jar"/>
+    <jar href="lib/tdb-0.7.3.jar"/>
+    <jar href="lib/junit-4.5.jar"/>
+    <jar href="lib/slf4j-api-1.5.6.jar"/>
+    <jar href="lib/jena-2.6.0.jar"/>
+    <jar href="lib/icu4j-3.4.4.jar"/>
+    <jar href="lib/xercesImpl-2.7.1.jar"/>
+    <jar href="lib/arq-2.6.0.jar"/>
+    <jar href="lib/lucene-core-2.3.1.jar"/>
+    <jar href="lib/stax-api-1.0.jar"/>
+    <jar href="lib/wstx-asl-3.0.0.jar"/>
+    <jar href="lib/json-jena-1.0.jar"/>
+    <jar href="lib/arq-extra-2.6.0.jar"/>
+    <jar href="lib/jenatest-2.6.0.jar"/>
+    <jar href="lib/iri-0.6.jar"/>
+    <jar href="lib/jaxb-xjc-2.0EA3.jar"/>
+    <jar href="lib/gleen-0.6.1.jar"/>
+    <jar href="lib/slf4j-log4j12-1.5.6.jar"/>
+    <jar href="lib/JWhoisServer-0.3.2.3.jar"/>
+    <jar href="lib/commons-logging-1.1.jar"/>
+    <jar href="lib/logkit-1.0.1.jar"/>
+    <jar href="lib/avalon-framework-4.1.3.jar"/>
+    <jar href="lib/servlet-api-2.3.jar"/>
+    <jar href="lib/log4j-1.2.13.jar"/>
+    <jar href="lib/jung-api-2.0.1.jar"/>
+    <jar href="lib/collections-generic-4.01.jar"/>
+    <jar href="lib/jung-3d-2.0.1.jar"/>
+    <jar href="lib/vecmath-1.3.1.jar"/>
+    <jar href="lib/j3d-core-1.3.1.jar"/>
+    <jar href="lib/jung-algorithms-2.0.1.jar"/>
+    <jar href="lib/colt-1.2.0.jar"/>
+    <jar href="lib/concurrent-1.3.4.jar"/>
+    <jar href="lib/jung-graph-impl-2.0.1.jar"/>
+    <jar href="lib/jung-jai-2.0.1.jar"/>
+    <jar href="lib/jung-visualization-2.0.1.jar"/>
+    <jar href="lib/jung-io-2.0.1.jar"/>
+    <jar href="lib/wstx-asl-3.2.6.jar"/>
+    <jar href="lib/swing-layout-1.0.2.jar"/>
+    <jar href="lib/kiwi-2.4.1.jar"/>
+    <jar href="lib/commons-lang-2.5.jar"/>
+    <jar href="lib/xmlrpc-client-3.1.3.jar"/>
+    <jar href="lib/xmlrpc-common-3.1.3.jar"/>
+    <jar href="lib/ws-commons-util-1.0.2.jar"/>
+    <jar href="lib/xml-apis-1.0.b2.jar"/>
+    <jar href="lib/bcprov-jdk15on-1.50.jar"/>
+    <jar href="lib/bcprov-ext-jdk15on-1.50.jar"/>
+    <jar href="lib/bcpkix-jdk15on-1.50.jar"/>
+    <jar href="lib/util-4.0-SNAPSHOT.jar"/>
+    <jar href="lib/commons-dbcp-1.3.jar"/>
+    <jar href="lib/commons-pool-1.5.4.jar"/>
+    <jar href="lib/mysql-connector-java-5.1.17.jar"/>
+    <jar href="lib/jabac-1.3.1.jar"/>
+    <jar href="lib/collections-generic-4.01.jar"/>
+    <jar href="lib/bcprov-jdk16-145.jar"/>
+    <jar href="lib/commons-httpclient-3.1.jar"/>
+    <jar href="lib/commons-codec-1.2.jar"/>
+    <jar href="lib/guava-14.0.1.jar"/>
+
+	</resources>
+	<application-desc main-class="orca.flukes.GUI"/>
+</jnlp>
