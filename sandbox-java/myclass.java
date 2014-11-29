@@ -15,13 +15,14 @@ public class myclass{
 			for (String line; (line = reader.readLine()) != null;) 
 			{
 				System.out.println(line + "\n");
-				JSONArray json = new JSONArray.get(line);
+				JSONObject json = new JSONObject(line);
 				System.out.println("dpid " + json.get("dpid"));
 			}
 		}
 
-		String urlParameters = "param1=a&param2=b&param3=c";
-		URL url = new URL("http://example.com/index.php");
+		URL url = new URL("http://127.0.0.1:8080/wm/staticflowentrypusher/json");
+		String urlParameters = "{\"switch\":\"00:00:00:00:00:00:00:01\",\"name\":\"flow-mod-1\",\"cookie\":\"0\",\"priority\":\"32768\",\"ingress-port\":\"1\",\"active\":\"true\",\"actions\":\"output=3\"}";
+
 		URLConnection conn = url.openConnection();
 
 		conn.setDoOutput(true);

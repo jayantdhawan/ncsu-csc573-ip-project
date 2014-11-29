@@ -1,3 +1,9 @@
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.io.*;
+import org.json.*;
+
 import java.sql.*;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -8,17 +14,88 @@ public class scheduler {
 
 	// 0 = No flow sent, 1 = Flow is being sent, 2 = Flow sent
 	public static int flow_status = 0;
+	
+	static void sendFlowAndGetResponse(String flow) throws UnsupportedEncodingException, IOException {
 
-	public static void main(String[] args) {
+		String controller_ip = "127.0.0.1:8080";
+
+		System.out.println("Flow to be pushed:\n" + flow);
+
+		// Connect to the controller
+		URL url = new URL("http://" + controller_ip + "/wm/staticflowentrypusher/json");
+		HttpURLConnection connection;
+
+		connection = (HttpURLConnection) url.openConnection();
+
+		connection.setDoOutput(true);
+
+		// Push flow to the controller
+		OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+
+		writer.write(flow);
+		writer.flush();
+
+		// Get response from the controller
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+
+		String line;
+		while ((line = reader.readLine()) != null) {
+			System.out.println(line);
+		}
+		writer.close();
+		reader.close();
+	}
+
+	public static void main(String[] args) throws UnsupportedEncodingException, IOException {
 
 		Connection myConn;
 		Statement myStmt;
 		ResultSet myRs;
-		final String url  = "jdbc:mysql://127.0.0.1/ip_project";
-		final String user = "root";
-		final String pass = "root";
-		final String tablename = "jobs";
+		final String db_url  = "jdbc:mysql://127.0.0.1/ip_project";
+		final String db_user = "root";
+		final String db_pass = "root";
+		final String db_tablename = "jobs";
 
+/* Trying out JSON */
+		String myString;
+/*
+		URL url = new URL("http://127.0.0.1:8080/wm/core/controller/switches/json");
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"))) 
+		{
+			for (String line; (line = reader.readLine()) != null;) 
+			{
+				System.out.println(line + "\n");
+				JSONObject json = new JSONObject(line);
+				System.out.println("dpid " + json.get("dpid"));
+			}
+		}
+*/
+		// Create the flow
+		String switch_dpid = "00:00:00:00:00:00:00:01";
+		String flow_name   = "flow-mod-1";
+		String flow_priority = "32766";
+		String flow_outport  = "1";
+		String flow_q        = "1";
+		String flow_actions  = "enqueue=" + flow_outport + ":" + flow_q;
+
+		JSONObject json_req = new JSONObject();
+		json_req.put("switch", switch_dpid);
+		json_req.put("name", flow_name);
+		json_req.put("cookie", "" + 0);
+		json_req.put("priority", "" + flow_priority);
+		json_req.put("ingress-port", "" + 2);
+		json_req.put("active", "true");
+		json_req.put("actions", flow_actions);
+		
+		//flow = "{\"switch\":\"" + switch_dpid + "\",\"name\":\"" + flow_name + "\",\"cookie\":\"0\",\"priority\":\"32768\",\"ingress-port\":\"2\",\"active\":\"true\",\"actions\":\"output=5\"}";
+
+		sendFlowAndGetResponse(json_req.toString());
+		
+		
+/* Trying out JSON */
+/*
 		try
 		{
 			Class.forName("com.mysql.jdbc.Driver");
@@ -30,11 +107,11 @@ public class scheduler {
 
 		try
 		{
-			myConn = DriverManager.getConnection(url, user, pass);
+			myConn = DriverManager.getConnection(db_url, db_user, db_pass);
 
 			// Get all the jobs from the database
 			myStmt = myConn.createStatement();
-			myRs   = myStmt.executeQuery("select * from " + tablename);
+			myRs   = myStmt.executeQuery("select * from " + db_tablename);
 			
 			System.out.println("Jobs available:");
 
@@ -90,11 +167,11 @@ public class scheduler {
 
 				try
 				{
-						myConn = DriverManager.getConnection(url, user, pass);
+						myConn = DriverManager.getConnection(db_url, db_user, db_pass);
 						myStmt = myConn.createStatement();
 
 						// Query to get the top row in the sorted list
-						myRs = myStmt.executeQuery("SELECT JobID, DATE_FORMAT(DateOfJob, '%m/%d/%Y') as DateOfJob, TIME_FORMAT(StartTime, '%H:%i') as StartTime, TIME_FORMAT(StopTime, '%H:%i') as StopTime, DstAdd, Port, Protocol FROM (SELECT * FROM " + tablename +" ORDER BY DateOfJob, StartTime ASC) as j2 LIMIT 1");
+						myRs = myStmt.executeQuery("SELECT JobID, DATE_FORMAT(DateOfJob, '%m/%d/%Y') as DateOfJob, TIME_FORMAT(StartTime, '%H:%i') as StartTime, TIME_FORMAT(StopTime, '%H:%i') as StopTime, DstAdd, Port, Protocol FROM (SELECT * FROM " + db_tablename +" ORDER BY DateOfJob, StartTime ASC) as j2 LIMIT 1");
 						while (myRs.next())
 						{
 							String job_id = myRs.getString("JobID");
@@ -119,7 +196,7 @@ public class scheduler {
 							else if (sys_date.equalsIgnoreCase(job_date) && sys_time.equalsIgnoreCase(job_stop_time) && (flow_status == 2))
 							{
 								System.out.println("Deleting flow entry.");
-								//myRs = myStmt.executeQuery("DELETE FROM " + tablename + " WHERE JobID = " + job_id);
+								//myRs = myStmt.executeQuery("DELETE FROM " + db_tablename + " WHERE JobID = " + job_id);
 								//myRs.next();?
 								flow_status = 0;
 								
@@ -131,14 +208,14 @@ public class scheduler {
 						}				
 		//				myConn.commit();
 						myConn.close();
-				}
-				
+				}				
 				catch(Exception x)
 				{
 					System.out.println("Error (MySQL): " + x);
 				}
 		    }
 		 }, delay, period);
+*/
 	}
 
 }
