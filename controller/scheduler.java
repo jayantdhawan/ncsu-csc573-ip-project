@@ -57,8 +57,11 @@ public class scheduler {
 		final String db_tablename = "jobs";
 
 /* Trying out JSON */
-		String myString;
 
+		// Temp variables
+		String DstAdd = "10.0.0.7";
+		String DstPort = "20";
+		
 		URL url = new URL("http://127.0.0.1:8080/wm/device/");
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -74,16 +77,36 @@ public class scheduler {
 				
 				for (int i = 0; i < json_a.length(); i++)
 				{
-					System.out.println(json_a.length());
 					JSONObject json = json_a.getJSONObject(i);
 					device_ip = json.get("ipv4").toString();
 
-					JSONArray json_a_attachmentPoints = new JSONArray(json.get("attachmentPoint").toString());
-
-					for (int j = 0; j < json_a_attachmentPoints.length(); j++)
+					if (device_ip.equals(DstAdd))
 					{
-						json = json_a_attachmentPoints.getJSONObject(j);
-						System.out.println("dpid " + json.get("switchDPID") + " port " + json.get("port"));
+						JSONArray json_a_attachmentPoints = new JSONArray(json.get("attachmentPoint").toString());
+
+						for (int j = 0; j < json_a_attachmentPoints.length(); j++)
+						{
+							json = json_a_attachmentPoints.getJSONObject(j);
+							System.out.println("dpid " + json.get("switchDPID") + " port " + json.get("port"));
+							
+							String flow_name     = "flow-mod-1";
+							String flow_priority = "32766";
+							String flow_outport  = json.get("port").toString();
+							String flow_q        = "1";
+							String flow_actions  = "enqueue=" + flow_outport + ":" + flow_q;
+							
+							JSONObject json_req = new JSONObject();
+							json_req.put("switch", json.get("switchDPID").toString());
+							json_req.put("name", flow_name);
+							json_req.put("cookie", "" + 0);
+							json_req.put("priority", "" + flow_priority);
+							json_req.put("ingress-port", "" + 2);
+							json_req.put("active", "true");
+							json_req.put("actions", flow_actions);
+							
+							System.out.println(json_req.toString());
+							
+						}
 					}
 				}
 			}
